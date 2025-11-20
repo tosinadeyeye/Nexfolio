@@ -3,15 +3,22 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { BlurView } from "expo-blur";
 import * as Haptics from "expo-haptics";
-import { Search, Calendar, User } from "lucide-react-native";
+import { Search, Calendar, User, LayoutDashboard, Briefcase } from "lucide-react-native";
 
-import type { BottomTabParamList, RootStackParamList } from "@/navigation/types";
+import type { ClientTabParamList, ProviderTabParamList, RootStackParamList } from "@/navigation/types";
+import { useAppStore } from "@/state/appStore";
 import SplashScreen from "@/screens/SplashScreen";
 import RoleSelectionScreen from "@/screens/RoleSelectionScreen";
 import LoginModalScreen from "@/screens/LoginModalScreen";
+// Client screens
 import DiscoverScreen from "@/screens/DiscoverScreen";
 import BookingsScreen from "@/screens/BookingsScreen";
 import ProfileScreen from "@/screens/ProfileScreen";
+// Provider screens
+import ProviderDashboardScreen from "@/screens/ProviderDashboardScreen";
+import ProviderPortfolioScreen from "@/screens/ProviderPortfolioScreen";
+import ProviderBookingsScreen from "@/screens/ProviderBookingsScreen";
+// Detail screens
 import ProviderDetailScreen from "@/screens/ProviderDetailScreen";
 import BookingDetailScreen from "@/screens/BookingDetailScreen";
 
@@ -29,20 +36,11 @@ const RootNavigator = () => {
       }}
     >
       {/* Onboarding Flow */}
-      <RootStack.Screen
-        name="Splash"
-        component={SplashScreen}
-      />
-      <RootStack.Screen
-        name="RoleSelection"
-        component={RoleSelectionScreen}
-      />
+      <RootStack.Screen name="Splash" component={SplashScreen} />
+      <RootStack.Screen name="RoleSelection" component={RoleSelectionScreen} />
 
-      {/* Main App */}
-      <RootStack.Screen
-        name="Tabs"
-        component={BottomTabNavigator}
-      />
+      {/* Main App - Role-based tabs */}
+      <RootStack.Screen name="Tabs" component={RoleBasedTabNavigator} />
 
       {/* Modals & Detail Screens */}
       <RootStack.Screen
@@ -51,7 +49,7 @@ const RootNavigator = () => {
         options={{
           presentation: "modal",
           headerShown: true,
-          title: "Sign In"
+          title: "Sign In",
         }}
       />
       <RootStack.Screen
@@ -60,7 +58,7 @@ const RootNavigator = () => {
         options={{
           headerShown: true,
           title: "Provider Details",
-          headerBackTitle: "Back"
+          headerBackTitle: "Back",
         }}
       />
       <RootStack.Screen
@@ -69,7 +67,7 @@ const RootNavigator = () => {
         options={{
           headerShown: true,
           title: "Booking Details",
-          headerBackTitle: "Back"
+          headerBackTitle: "Back",
         }}
       />
     </RootStack.Navigator>
@@ -77,13 +75,28 @@ const RootNavigator = () => {
 };
 
 /**
- * BottomTabNavigator
- * Main tabs for the client experience
+ * RoleBasedTabNavigator
+ * Switches between client and provider tabs based on user role
  */
-const BottomTab = createBottomTabNavigator<BottomTabParamList>();
-const BottomTabNavigator = () => {
+const RoleBasedTabNavigator = () => {
+  const profile = useAppStore((s) => s.profile);
+  const isProvider = profile?.role === "provider";
+
+  if (isProvider) {
+    return <ProviderTabNavigator />;
+  }
+
+  return <ClientTabNavigator />;
+};
+
+/**
+ * ClientTabNavigator
+ * Bottom tabs for client users
+ */
+const ClientTab = createBottomTabNavigator<ClientTabParamList>();
+const ClientTabNavigator = () => {
   return (
-    <BottomTab.Navigator
+    <ClientTab.Navigator
       initialRouteName="DiscoverTab"
       screenOptions={{
         tabBarStyle: {
@@ -111,7 +124,7 @@ const BottomTabNavigator = () => {
         },
       })}
     >
-      <BottomTab.Screen
+      <ClientTab.Screen
         name="DiscoverTab"
         component={DiscoverScreen}
         options={{
@@ -119,7 +132,7 @@ const BottomTabNavigator = () => {
           tabBarIcon: ({ color, size }) => <Search size={size} color={color} strokeWidth={2.5} />,
         }}
       />
-      <BottomTab.Screen
+      <ClientTab.Screen
         name="BookingsTab"
         component={BookingsScreen}
         options={{
@@ -127,7 +140,7 @@ const BottomTabNavigator = () => {
           tabBarIcon: ({ color, size }) => <Calendar size={size} color={color} strokeWidth={2.5} />,
         }}
       />
-      <BottomTab.Screen
+      <ClientTab.Screen
         name="ProfileTab"
         component={ProfileScreen}
         options={{
@@ -135,7 +148,78 @@ const BottomTabNavigator = () => {
           tabBarIcon: ({ color, size }) => <User size={size} color={color} strokeWidth={2.5} />,
         }}
       />
-    </BottomTab.Navigator>
+    </ClientTab.Navigator>
+  );
+};
+
+/**
+ * ProviderTabNavigator
+ * Bottom tabs for provider users
+ */
+const ProviderTab = createBottomTabNavigator<ProviderTabParamList>();
+const ProviderTabNavigator = () => {
+  return (
+    <ProviderTab.Navigator
+      initialRouteName="ProviderDashboardTab"
+      screenOptions={{
+        tabBarStyle: {
+          position: "absolute",
+          borderTopWidth: 0,
+          elevation: 0,
+          height: 88,
+          paddingBottom: 32,
+          paddingTop: 8,
+        },
+        tabBarBackground: () => (
+          <BlurView tint="light" intensity={95} style={StyleSheet.absoluteFill} />
+        ),
+        tabBarActiveTintColor: "#7546EA",
+        tabBarInactiveTintColor: "#9CA3AF",
+        headerShown: false,
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: "600",
+        },
+      }}
+      screenListeners={() => ({
+        tabPress: () => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        },
+      })}
+    >
+      <ProviderTab.Screen
+        name="ProviderDashboardTab"
+        component={ProviderDashboardScreen}
+        options={{
+          title: "Dashboard",
+          tabBarIcon: ({ color, size }) => <LayoutDashboard size={size} color={color} strokeWidth={2.5} />,
+        }}
+      />
+      <ProviderTab.Screen
+        name="ProviderPortfolioTab"
+        component={ProviderPortfolioScreen}
+        options={{
+          title: "Portfolio",
+          tabBarIcon: ({ color, size }) => <Briefcase size={size} color={color} strokeWidth={2.5} />,
+        }}
+      />
+      <ProviderTab.Screen
+        name="ProviderBookingsTab"
+        component={ProviderBookingsScreen}
+        options={{
+          title: "Bookings",
+          tabBarIcon: ({ color, size }) => <Calendar size={size} color={color} strokeWidth={2.5} />,
+        }}
+      />
+      <ProviderTab.Screen
+        name="ProfileTab"
+        component={ProfileScreen}
+        options={{
+          title: "Profile",
+          tabBarIcon: ({ color, size }) => <User size={size} color={color} strokeWidth={2.5} />,
+        }}
+      />
+    </ProviderTab.Navigator>
   );
 };
 

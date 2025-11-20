@@ -12,15 +12,24 @@ declare global {
 export type RootStackParamList = {
   Splash: undefined;
   RoleSelection: undefined;
-  Tabs: NavigatorScreenParams<BottomTabParamList> | undefined;
+  Tabs: NavigatorScreenParams<ClientTabParamList | ProviderTabParamList> | undefined;
   LoginModalScreen: { role?: "provider" | "client" } | undefined;
   ProviderDetail: { providerId: number };
   BookingDetail: { bookingId: number };
 };
 
-export type BottomTabParamList = {
+// Client tabs
+export type ClientTabParamList = {
   DiscoverTab: undefined;
   BookingsTab: undefined;
+  ProfileTab: undefined;
+};
+
+// Provider tabs
+export type ProviderTabParamList = {
+  ProviderDashboardTab: undefined;
+  ProviderPortfolioTab: undefined;
+  ProviderBookingsTab: undefined;
   ProfileTab: undefined;
 };
 
@@ -29,7 +38,16 @@ export type RootStackScreenProps<T extends keyof RootStackParamList> = NativeSta
   T
 >;
 
-export type BottomTabScreenProps<Screen extends keyof BottomTabParamList> = CompositeScreenProps<
-  BottomTabScreenPropsBase<BottomTabParamList, Screen>,
+export type ClientTabScreenProps<Screen extends keyof ClientTabParamList> = CompositeScreenProps<
+  BottomTabScreenPropsBase<ClientTabParamList, Screen>,
   NativeStackScreenProps<RootStackParamList>
 >;
+
+export type ProviderTabScreenProps<Screen extends keyof ProviderTabParamList> = CompositeScreenProps<
+  BottomTabScreenPropsBase<ProviderTabParamList, Screen>,
+  NativeStackScreenProps<RootStackParamList>
+>;
+
+// Backward compatibility
+export type BottomTabParamList = ClientTabParamList;
+export type BottomTabScreenProps<Screen extends keyof ClientTabParamList> = ClientTabScreenProps<Screen>;

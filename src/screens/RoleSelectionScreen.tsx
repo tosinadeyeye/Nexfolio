@@ -14,7 +14,9 @@ const RoleSelectionScreen = ({ navigation }: Props) => {
   const handleContinue = () => {
     if (selectedRole) {
       setHasCompletedOnboarding(true);
-      // Skip login for now and go straight to main app
+      // Store the selected role in the app store
+      useAppStore.setState({ profile: { role: selectedRole } as any });
+      // Navigate to main app
       navigation.replace("Tabs");
     }
   };

@@ -9,8 +9,11 @@ Nexfolio is a beautiful, full-stack mobile application built with Expo and React
 ## Features
 
 ### Core Functionality
-- **Dual User Roles**: Separate experiences for providers and clients
-- **Beautiful Onboarding**: Splash screen and role selection flow
+- **Dual User Roles**: Completely separate experiences for providers and clients
+  - **Client View**: Discover providers, book services, manage bookings, view profile
+  - **Provider View**: Dashboard with stats, portfolio management, client bookings, profile
+- **Role-Based Navigation**: Automatic routing based on user role
+- **Beautiful Onboarding**: Splash screen with logo and smooth role selection flow
 - **Provider Discovery**: Browse professionals by service type and location
 - **Booking System**: Schedule trial sessions with calendar integration
 - **Portfolio Management**: Providers can showcase their work with image galleries
@@ -54,9 +57,17 @@ Nexfolio is a beautiful, full-stack mobile application built with Expo and React
 │   ├── screens/           # All app screens
 │   │   ├── SplashScreen.tsx
 │   │   ├── RoleSelectionScreen.tsx
+│   │   # Client Screens
 │   │   ├── DiscoverScreen.tsx
 │   │   ├── BookingsScreen.tsx
 │   │   ├── ProfileScreen.tsx
+│   │   # Provider Screens
+│   │   ├── ProviderDashboardScreen.tsx
+│   │   ├── ProviderPortfolioScreen.tsx
+│   │   ├── ProviderBookingsScreen.tsx
+│   │   # Shared Detail Screens
+│   │   ├── ProviderDetailScreen.tsx
+│   │   ├── BookingDetailScreen.tsx
 │   │   └── LoginModalScreen.tsx
 │   ├── components/        # Reusable components
 │   │   └── LoginWithEmailPassword.tsx
@@ -64,7 +75,7 @@ Nexfolio is a beautiful, full-stack mobile application built with Expo and React
 │   │   ├── RootNavigator.tsx
 │   │   └── types.ts
 │   ├── state/            # Zustand stores
-│   │   └── userStore.ts
+│   │   └── appStore.ts
 │   ├── lib/              # Utilities
 │   │   ├── api.ts
 │   │   ├── authClient.ts
@@ -191,10 +202,14 @@ bun run format
 ## Notes
 
 - The app uses a beautiful purple-to-pink gradient theme throughout
+- **Role-based navigation**: The app automatically shows different screens based on user role
+  - Providers see: Dashboard → Portfolio → Bookings → Profile tabs
+  - Clients see: Discover → Bookings → Profile tabs
 - All navigation uses type-safe navigation props
-- State management is minimal and focused (Zustand for user state, TanStack Query for server state)
+- State management is minimal and focused (Zustand for app state, TanStack Query for server state)
 - The backend API is fully typed and validated with Zod
 - Authentication is handled by Better Auth with Expo support
+- Separate navigation type systems for ClientTabParamList and ProviderTabParamList ensure type safety
 
 ---
 
