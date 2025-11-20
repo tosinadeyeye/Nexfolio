@@ -40,8 +40,8 @@ const DiscoverScreen = ({ navigation }: Props) => {
         params.append("serviceType", selectedCategory);
       }
 
-      const response = await api.get(`/provider?${params.toString()}`) as { data: GetProvidersResponse };
-      return response.data;
+      const response = await api.get<GetProvidersResponse>(`/api/provider?${params.toString()}`);
+      return response;
     },
   });
 
