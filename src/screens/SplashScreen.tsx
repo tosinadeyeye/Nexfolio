@@ -1,7 +1,6 @@
 import React from "react";
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, Image } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { Sparkles } from "lucide-react-native";
 import type { RootStackScreenProps } from "@/navigation/types";
 
 type Props = RootStackScreenProps<"Splash">;
@@ -22,8 +21,18 @@ const SplashScreen = ({ navigation }: Props) => {
         <View className="flex-1 justify-center items-center px-8">
           {/* Logo Area */}
           <View className="items-center mb-12">
-            <View className="bg-white/20 rounded-full p-6 mb-6">
-              <Sparkles size={64} color="#FFFFFF" strokeWidth={2} />
+            <View className="bg-white rounded-3xl p-6 mb-6" style={{
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 8 },
+              shadowOpacity: 0.3,
+              shadowRadius: 16,
+              elevation: 10,
+            }}>
+              <Image
+                source={require("../../assets/image-1763608540.jpeg")}
+                style={{ width: 120, height: 120, borderRadius: 20 }}
+                resizeMode="cover"
+              />
             </View>
             <Text className="text-6xl font-bold text-white mb-2">Nexfolio</Text>
             <Text className="text-xl text-white/90 text-center">
