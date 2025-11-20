@@ -98,6 +98,7 @@ model Provider {
   id                      Int              @id @default(autoincrement())
   profile                 Profile          @relation(fields: [profileId], references: [id], onDelete: Cascade)
   profileId               Int              @unique
+  profession              String?          // Main profession/title (e.g., "Makeup Artist", "Plumber", "Software Developer")
   serviceTypes            String           // JSON array of service types
   pricing                 String?          // JSON object for pricing info
   travelRadius            Int?             // in miles

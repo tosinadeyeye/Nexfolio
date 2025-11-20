@@ -35,6 +35,7 @@ providerRouter.post("/setup", zValidator("json", setupProviderRequestSchema), as
 
     // Create or update provider
     const providerData = {
+      profession: data.profession,
       serviceTypes: JSON.stringify(data.serviceTypes),
       pricing: data.pricing ? JSON.stringify(data.pricing) : null,
       travelRadius: data.travelRadius,
@@ -78,6 +79,11 @@ providerRouter.get("/", zValidator("query", getProvidersQuerySchema), async (c) 
             handle: true,
             bio: true,
             location: true,
+            user: {
+              select: {
+                name: true,
+              },
+            },
           },
         },
       },
@@ -89,6 +95,34 @@ providerRouter.get("/", zValidator("query", getProvidersQuerySchema), async (c) 
     // Apply filters
     let filteredProviders = providers;
 
+    // Search across multiple fields
+    if (query.search) {
+      const searchLower = query.search.toLowerCase();
+      filteredProviders = filteredProviders.filter((provider) => {
+        const serviceTypes = JSON.parse(provider.serviceTypes);
+
+        // Search in profession
+        const professionMatch = provider.profession?.toLowerCase().includes(searchLower);
+
+        // Search in provider name (from user)
+        const nameMatch = provider.profile.user.name?.toLowerCase().includes(searchLower);
+
+        // Search in handle
+        const handleMatch = provider.profile.handle.toLowerCase().includes(searchLower);
+
+        // Search in bio
+        const bioMatch = provider.profile.bio?.toLowerCase().includes(searchLower);
+
+        // Search in service types array
+        const serviceTypeMatch = serviceTypes.some((st: string) =>
+          st.toLowerCase().includes(searchLower)
+        );
+
+        return professionMatch || nameMatch || handleMatch || bioMatch || serviceTypeMatch;
+      });
+    }
+
+    // Filter by specific service type
     if (query.serviceType) {
       filteredProviders = filteredProviders.filter((provider) => {
         const serviceTypes = JSON.parse(provider.serviceTypes);
@@ -96,13 +130,20 @@ providerRouter.get("/", zValidator("query", getProvidersQuerySchema), async (c) 
       });
     }
 
+    // Filter by location
     if (query.location) {
       filteredProviders = filteredProviders.filter(
         (provider) => provider.profile.location?.toLowerCase().includes(query.location!.toLowerCase())
       );
     }
 
-    return c.json(filteredProviders);
+    // Remove user info before sending response
+    const response = filteredProviders.map(({ profile: { user, ...profileRest }, ...rest }) => ({
+      ...rest,
+      profile: profileRest,
+    }));
+
+    return c.json(response);
   } catch (error) {
     console.error("Error fetching providers:", error);
     return c.json({ error: "Failed to fetch providers" }, 500);

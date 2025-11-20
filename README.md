@@ -14,6 +14,11 @@ Nexfolio is a beautiful, full-stack mobile application built with Expo and React
   - **Provider View**: Dashboard with stats, portfolio management, client bookings, profile
 - **Role-Based Navigation**: Automatic routing based on user role
 - **Beautiful Onboarding**: Splash screen with logo and smooth role selection flow
+- **Comprehensive Search System**: Search for any kind of provider or freelancer across all professions
+  - Real-time text search across profession titles, names, handles, bios, and service types
+  - Category filtering with predefined service types
+  - Location-based filtering
+  - Supports unlimited profession types - not limited to predefined categories
 - **Provider Discovery**: Browse professionals by service type and location
 - **Booking System**: Schedule trial sessions with calendar integration
 - **Portfolio Management**: Providers can showcase their work with image galleries
@@ -118,7 +123,7 @@ Nexfolio is a beautiful, full-stack mobile application built with Expo and React
 ### Models
 - **User**: Authentication and basic user info
 - **Profile**: Extended profile information (role: provider/client)
-- **Provider**: Provider-specific data (services, pricing, ratings, subscription tier)
+- **Provider**: Provider-specific data (profession, services, pricing, ratings, subscription tier)
 - **SubscriptionHistory**: Tracks subscription upgrades, downgrades, and cancellations
 - **PortfolioItem**: Provider's work showcase
 - **Booking**: Service bookings (trial and full)
@@ -136,8 +141,8 @@ Nexfolio is a beautiful, full-stack mobile application built with Expo and React
 - `GET /api/profile` - Get current user's profile
 
 ### Provider
-- `POST /api/provider/setup` - Setup provider profile
-- `GET /api/provider` - Get all providers (with filters)
+- `POST /api/provider/setup` - Setup provider profile (includes profession field)
+- `GET /api/provider` - Get all providers (supports search query parameter for text search)
 - `GET /api/provider/:id` - Get specific provider details
 
 ### Portfolio
@@ -178,7 +183,7 @@ Backend environment variables are configured in `/home/user/workspace/backend/.e
 ## Next Steps
 
 ### Features to Add
-1. **Search & Filters**: Advanced provider search with filters
+1. ~~**Search & Filters**: Advanced provider search with filters~~ ✅ **Implemented**
 2. **Real-time Chat**: Provider-client messaging system
 3. **Payment Integration**: Stripe for processing subscription payments
 4. **Push Notifications**: Booking reminders and subscription updates

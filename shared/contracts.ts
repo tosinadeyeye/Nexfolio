@@ -52,6 +52,7 @@ export type GetProfileResponse = z.infer<typeof getProfileResponseSchema>;
 
 // POST /api/provider/setup
 export const setupProviderRequestSchema = z.object({
+  profession: z.string().optional(),
   serviceTypes: z.array(z.string()).min(1),
   pricing: z.record(z.string(), z.number()).optional(),
   travelRadius: z.number().optional(),
@@ -67,6 +68,7 @@ export type SetupProviderResponse = z.infer<typeof setupProviderResponseSchema>;
 
 // GET /api/providers
 export const getProvidersQuerySchema = z.object({
+  search: z.string().optional(), // Search across profession, name, bio, service types
   serviceType: z.string().optional(),
   location: z.string().optional(),
   radius: z.string().optional(),
@@ -76,12 +78,14 @@ export const getProvidersResponseSchema = z.array(
   z.object({
     id: z.number(),
     profileId: z.number(),
+    profession: z.string().nullable(),
     profile: z.object({
       handle: z.string(),
       bio: z.string().nullable(),
       location: z.string().nullable(),
     }),
     serviceTypes: z.string(),
+    subscriptionTier: z.string(),
     averageRating: z.number(),
     totalBookings: z.number(),
     isVerified: z.boolean(),
@@ -93,6 +97,7 @@ export type GetProvidersResponse = z.infer<typeof getProvidersResponseSchema>;
 export const getProviderResponseSchema = z.object({
   id: z.number(),
   profileId: z.number(),
+  profession: z.string().nullable(),
   serviceTypes: z.string(),
   pricing: z.string().nullable(),
   travelRadius: z.number().nullable(),

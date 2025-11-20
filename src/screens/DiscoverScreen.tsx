@@ -1,10 +1,12 @@
 import React, { useState } from "react";
-import { View, Text, ScrollView, Pressable } from "react-native";
+import { View, Text, ScrollView, Pressable, TextInput, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Search, Star, MapPin, Briefcase, Crown, Zap, BadgeCheck } from "lucide-react-native";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
 import type { BottomTabScreenProps } from "@/navigation/types";
-import type { SubscriptionTier } from "../../shared/contracts";
+import type { SubscriptionTier, GetProvidersResponse } from "../../shared/contracts";
 
 type Props = BottomTabScreenProps<"DiscoverTab">;
 
@@ -20,50 +22,28 @@ const SERVICE_CATEGORIES = [
   "Interior Decorator",
 ];
 
-const MOCK_PROVIDERS = [
-  {
-    id: 1,
-    name: "Sarah Johnson",
-    handle: "@sarahbeauty",
-    service: "Makeup Artist",
-    rating: 4.9,
-    reviews: 127,
-    location: "New York, NY",
-    trialPrice: 45,
-    image: "👩‍🎨",
-    subscriptionTier: "elite" as SubscriptionTier,
-    isVerified: true,
-  },
-  {
-    id: 2,
-    name: "Mike Chen",
-    handle: "@mikefixes",
-    service: "Electrician",
-    rating: 4.8,
-    reviews: 89,
-    location: "Brooklyn, NY",
-    trialPrice: 60,
-    image: "⚡",
-    subscriptionTier: "pro" as SubscriptionTier,
-    isVerified: false,
-  },
-  {
-    id: 3,
-    name: "Emma Davis",
-    handle: "@emmahair",
-    service: "Hair Stylist",
-    rating: 5.0,
-    reviews: 203,
-    location: "Manhattan, NY",
-    trialPrice: 50,
-    image: "💇‍♀️",
-    subscriptionTier: "starter" as SubscriptionTier,
-    isVerified: false,
-  },
-];
-
 const DiscoverScreen = ({ navigation }: Props) => {
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+
+  // Fetch providers from API
+  const { data: providers, isLoading, error } = useQuery<GetProvidersResponse>({
+    queryKey: ["providers", searchQuery, selectedCategory],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+
+      if (searchQuery) {
+        params.append("search", searchQuery);
+      }
+
+      if (selectedCategory !== "All") {
+        params.append("serviceType", selectedCategory);
+      }
+
+      const response = await api.get(`/provider?${params.toString()}`) as { data: GetProvidersResponse };
+      return response.data;
+    },
+  });
 
   const getTierBadge = (tier: SubscriptionTier, isVerified: boolean) => {
     if (tier === "elite") {
@@ -91,7 +71,14 @@ const DiscoverScreen = ({ navigation }: Props) => {
             {/* Search Bar */}
             <View className="bg-white/20 rounded-2xl px-4 py-3 flex-row items-center">
               <Search size={20} color="#FFFFFF" strokeWidth={2} />
-              <Text className="text-white/70 ml-3 text-base">Search professionals...</Text>
+              <TextInput
+                className="flex-1 ml-3 text-white text-base"
+                placeholder="Search any profession..."
+                placeholderTextColor="rgba(255,255,255,0.7)"
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                returnKeyType="search"
+              />
             </View>
           </View>
         </SafeAreaView>
@@ -125,87 +112,130 @@ const DiscoverScreen = ({ navigation }: Props) => {
 
         {/* Providers List */}
         <View className="px-6 py-4">
-          <Text className="text-lg font-bold text-gray-900 mb-4">Top Professionals</Text>
+          <Text className="text-lg font-bold text-gray-900 mb-4">
+            {searchQuery ? "Search Results" : "Top Professionals"}
+          </Text>
 
-          {MOCK_PROVIDERS.map((provider) => (
-            <Pressable
-              key={provider.id}
-              onPress={() => navigation.navigate("ProviderDetail", { providerId: provider.id })}
-              className="bg-white rounded-3xl p-4 mb-4"
-              style={{
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.1,
-                shadowRadius: 8,
-                elevation: 3,
-              }}
-            >
-              <View className="flex-row">
-                {/* Avatar */}
-                <View className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#7546EA] to-[#FF67FF] items-center justify-center mr-4">
-                  <Text className="text-4xl">{provider.image}</Text>
-                </View>
+          {isLoading ? (
+            <View className="py-8 items-center">
+              <ActivityIndicator size="large" color="#7546EA" />
+              <Text className="text-gray-500 mt-4">Loading providers...</Text>
+            </View>
+          ) : error ? (
+            <View className="py-8 items-center">
+              <Text className="text-red-500">Failed to load providers</Text>
+            </View>
+          ) : !providers || providers.length === 0 ? (
+            <View className="py-8 items-center">
+              <Text className="text-gray-500">
+                {searchQuery ? "No providers found matching your search" : "No providers available yet"}
+              </Text>
+            </View>
+          ) : (
+            providers.map((provider) => {
+              const serviceTypes = JSON.parse(provider.serviceTypes) as string[];
+              const displayService = provider.profession || serviceTypes[0] || "Provider";
 
-                {/* Info */}
-                <View className="flex-1">
-                  <View className="flex-row items-center justify-between mb-1">
-                    <View className="flex-row items-center flex-1">
-                      <Text className="text-lg font-bold text-gray-900 mr-2">{provider.name}</Text>
-                      {provider.isVerified && (
-                        <BadgeCheck size={18} color="#10B981" fill="#10B981" />
-                      )}
-                    </View>
-                    <View className="flex-row items-center bg-[#7546EA]/10 px-2 py-1 rounded-full">
-                      <Star size={14} color="#7546EA" fill="#7546EA" />
-                      <Text className="text-[#7546EA] font-bold ml-1 text-sm">
-                        {provider.rating}
+              return (
+                <Pressable
+                  key={provider.id}
+                  onPress={() => navigation.navigate("ProviderDetail", { providerId: provider.id })}
+                  className="bg-white rounded-3xl p-4 mb-4"
+                  style={{
+                    shadowColor: "#000",
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.1,
+                    shadowRadius: 8,
+                    elevation: 3,
+                  }}
+                >
+                  <View className="flex-row">
+                    {/* Avatar */}
+                    <View className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#7546EA] to-[#FF67FF] items-center justify-center mr-4">
+                      <Text className="text-4xl">
+                        {displayService.charAt(0).toUpperCase()}
                       </Text>
                     </View>
-                  </View>
 
-                  <View className="flex-row items-center mb-2">
-                    <Text className="text-sm text-gray-500 mr-2">{provider.handle}</Text>
-                    {getTierBadge(provider.subscriptionTier, provider.isVerified) && (
-                      <View
-                        className="flex-row items-center px-2 py-0.5 rounded-full"
-                        style={{
-                          backgroundColor: getTierBadge(provider.subscriptionTier, provider.isVerified)!.bgColor,
-                        }}
-                      >
-                        {React.createElement(getTierBadge(provider.subscriptionTier, provider.isVerified)!.icon, {
-                          size: 10,
-                          color: getTierBadge(provider.subscriptionTier, provider.isVerified)!.color,
-                        })}
-                        <Text
-                          className="text-xs font-bold ml-1"
-                          style={{
-                            color: getTierBadge(provider.subscriptionTier, provider.isVerified)!.color,
-                          }}
-                        >
-                          {getTierBadge(provider.subscriptionTier, provider.isVerified)!.label}
-                        </Text>
+                    {/* Info */}
+                    <View className="flex-1">
+                      <View className="flex-row items-center justify-between mb-1">
+                        <View className="flex-row items-center flex-1">
+                          <Text className="text-lg font-bold text-gray-900 mr-2">
+                            {provider.profile.handle}
+                          </Text>
+                          {provider.isVerified && (
+                            <BadgeCheck size={18} color="#10B981" fill="#10B981" />
+                          )}
+                        </View>
+                        {provider.averageRating > 0 && (
+                          <View className="flex-row items-center bg-[#7546EA]/10 px-2 py-1 rounded-full">
+                            <Star size={14} color="#7546EA" fill="#7546EA" />
+                            <Text className="text-[#7546EA] font-bold ml-1 text-sm">
+                              {provider.averageRating.toFixed(1)}
+                            </Text>
+                          </View>
+                        )}
                       </View>
-                    )}
-                  </View>
 
-                  <View className="flex-row items-center mb-2">
-                    <Briefcase size={14} color="#666" />
-                    <Text className="text-sm text-gray-600 ml-1">{provider.service}</Text>
-                  </View>
+                      <View className="flex-row items-center mb-2">
+                        {provider.profession && (
+                          <Text className="text-sm text-gray-500 mr-2">{provider.profession}</Text>
+                        )}
+                        {getTierBadge(provider.subscriptionTier as SubscriptionTier, provider.isVerified) && (
+                          <View
+                            className="flex-row items-center px-2 py-0.5 rounded-full"
+                            style={{
+                              backgroundColor: getTierBadge(provider.subscriptionTier as SubscriptionTier, provider.isVerified)!.bgColor,
+                            }}
+                          >
+                            {React.createElement(getTierBadge(provider.subscriptionTier as SubscriptionTier, provider.isVerified)!.icon, {
+                              size: 10,
+                              color: getTierBadge(provider.subscriptionTier as SubscriptionTier, provider.isVerified)!.color,
+                            })}
+                            <Text
+                              className="text-xs font-bold ml-1"
+                              style={{
+                                color: getTierBadge(provider.subscriptionTier as SubscriptionTier, provider.isVerified)!.color,
+                              }}
+                            >
+                              {getTierBadge(provider.subscriptionTier as SubscriptionTier, provider.isVerified)!.label}
+                            </Text>
+                          </View>
+                        )}
+                      </View>
 
-                  <View className="flex-row items-center justify-between">
-                    <View className="flex-row items-center">
-                      <MapPin size={14} color="#666" />
-                      <Text className="text-sm text-gray-600 ml-1">{provider.location}</Text>
+                      {provider.profile.bio && (
+                        <View className="mb-2">
+                          <Text className="text-sm text-gray-600" numberOfLines={2}>
+                            {provider.profile.bio}
+                          </Text>
+                        </View>
+                      )}
+
+                      <View className="flex-row items-center justify-between">
+                        <View className="flex-row items-center">
+                          {provider.profile.location && (
+                            <>
+                              <MapPin size={14} color="#666" />
+                              <Text className="text-sm text-gray-600 ml-1">
+                                {provider.profile.location}
+                              </Text>
+                            </>
+                          )}
+                        </View>
+                        {provider.totalBookings > 0 && (
+                          <Text className="text-sm text-gray-500">
+                            {provider.totalBookings} bookings
+                          </Text>
+                        )}
+                      </View>
                     </View>
-                    <Text className="text-sm font-bold text-[#7546EA]">
-                      ${provider.trialPrice} trial
-                    </Text>
                   </View>
-                </View>
-              </View>
-            </Pressable>
-          ))}
+                </Pressable>
+              );
+            })
+          )}
         </View>
       </ScrollView>
     </View>
