@@ -234,3 +234,98 @@ export const uploadImageResponseSchema = z.object({
   filename: z.string(),
 });
 export type UploadImageResponse = z.infer<typeof uploadImageResponseSchema>;
+
+// Subscription endpoints
+
+// Subscription tier enum
+export const subscriptionTierSchema = z.enum(["free", "starter", "pro", "elite"]);
+export type SubscriptionTier = z.infer<typeof subscriptionTierSchema>;
+
+// Subscription tier features and pricing
+export const SUBSCRIPTION_TIERS = {
+  free: {
+    name: "Free",
+    price: 0,
+    features: [
+      "Basic profile",
+      "Up to 5 portfolio items",
+      "Standard listing",
+      "Basic analytics",
+    ],
+    portfolioLimit: 5,
+    priority: 0,
+  },
+  starter: {
+    name: "Starter",
+    price: 9.99,
+    features: [
+      "All Free features",
+      "Up to 15 portfolio items",
+      "Priority listing",
+      "Advanced analytics",
+      "Custom branding",
+    ],
+    portfolioLimit: 15,
+    priority: 1,
+  },
+  pro: {
+    name: "Pro",
+    price: 24.99,
+    features: [
+      "All Starter features",
+      "Unlimited portfolio items",
+      "Top priority listing",
+      "Featured badge",
+      "Premium analytics",
+      "Priority support",
+      "Custom booking forms",
+    ],
+    portfolioLimit: -1, // unlimited
+    priority: 2,
+  },
+  elite: {
+    name: "Elite",
+    price: 49.99,
+    features: [
+      "All Pro features",
+      "Verified badge",
+      "Featured on homepage",
+      "Dedicated account manager",
+      "API access",
+      "White-label options",
+      "Advanced integrations",
+    ],
+    portfolioLimit: -1, // unlimited
+    priority: 3,
+  },
+} as const;
+
+// POST /api/subscription/upgrade
+export const upgradeSubscriptionRequestSchema = z.object({
+  tier: subscriptionTierSchema,
+  paymentMethodId: z.string().optional(), // For future Stripe integration
+});
+export type UpgradeSubscriptionRequest = z.infer<typeof upgradeSubscriptionRequestSchema>;
+export const upgradeSubscriptionResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+  subscriptionTier: subscriptionTierSchema,
+});
+export type UpgradeSubscriptionResponse = z.infer<typeof upgradeSubscriptionResponseSchema>;
+
+// POST /api/subscription/cancel
+export const cancelSubscriptionResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+});
+export type CancelSubscriptionResponse = z.infer<typeof cancelSubscriptionResponseSchema>;
+
+// GET /api/subscription/current
+export const getCurrentSubscriptionResponseSchema = z.object({
+  subscriptionTier: subscriptionTierSchema,
+  features: z.array(z.string()),
+  portfolioLimit: z.number(),
+  currentPortfolioCount: z.number(),
+  price: z.number(),
+});
+export type GetCurrentSubscriptionResponse = z.infer<typeof getCurrentSubscriptionResponseSchema>;

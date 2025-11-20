@@ -95,25 +95,42 @@ model Profile {
 }
 
 model Provider {
-  id                Int              @id @default(autoincrement())
-  profile           Profile          @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  profileId         Int              @unique
-  serviceTypes      String           // JSON array of service types
-  pricing           String?          // JSON object for pricing info
-  travelRadius      Int?             // in miles
-  socialLinks       String?          // JSON object for social links
-  availability      String?          // JSON object for availability schedule
-  subscriptionTier  String           @default("free") // "free", "starter", "pro", "elite"
-  isVerified        Boolean          @default(false)
-  totalBookings     Int              @default(0)
-  averageRating     Float            @default(0.0)
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
-  portfolioItems    PortfolioItem[]
-  providerBookings  Booking[]        @relation("ProviderBookings")
-  providerReviews   Review[]         @relation("ProviderReviews")
+  id                      Int              @id @default(autoincrement())
+  profile                 Profile          @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId               Int              @unique
+  serviceTypes            String           // JSON array of service types
+  pricing                 String?          // JSON object for pricing info
+  travelRadius            Int?             // in miles
+  socialLinks             String?          // JSON object for social links
+  availability            String?          // JSON object for availability schedule
+  subscriptionTier        String           @default("free") // "free", "starter", "pro", "elite"
+  subscriptionStartDate   DateTime?        // When current subscription started
+  subscriptionEndDate     DateTime?        // When subscription expires (for future billing)
+  isVerified              Boolean          @default(false)
+  totalBookings           Int              @default(0)
+  averageRating           Float            @default(0.0)
+  createdAt               DateTime         @default(now())
+  updatedAt               DateTime         @updatedAt
+  portfolioItems          PortfolioItem[]
+  providerBookings        Booking[]        @relation("ProviderBookings")
+  providerReviews         Review[]         @relation("ProviderReviews")
+  subscriptionHistory     SubscriptionHistory[]
 
   @@map("provider")
+}
+
+model SubscriptionHistory {
+  id          Int      @id @default(autoincrement())
+  provider    Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  providerId  Int
+  tier        String   // "free", "starter", "pro", "elite"
+  action      String   // "upgrade", "downgrade", "cancel"
+  amount      Float    // Price paid
+  startDate   DateTime
+  endDate     DateTime?
+  createdAt   DateTime @default(now())
+
+  @@map("subscription_history")
 }
 
 model PortfolioItem {
