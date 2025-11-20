@@ -1,0 +1,167 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id
+  email         String    @unique
+  name          String?
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+
+  Profile Profile?
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+
+  @@map("verification")
+}
+
+model Profile {
+  id          Int      @id @default(autoincrement())
+  handle      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String   @unique
+  role        String   // "provider" or "client"
+  bio         String?
+  location    String?
+  phoneNumber String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Provider-specific fields
+  provider Provider?
+
+  // Client bookings and reviews
+  clientBookings Booking[] @relation("ClientBookings")
+  clientReviews  Review[]  @relation("ClientReviews")
+
+  @@map("profile")
+}
+
+model Provider {
+  id                Int              @id @default(autoincrement())
+  profile           Profile          @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId         Int              @unique
+  serviceTypes      String           // JSON array of service types
+  pricing           String?          // JSON object for pricing info
+  travelRadius      Int?             // in miles
+  socialLinks       String?          // JSON object for social links
+  availability      String?          // JSON object for availability schedule
+  subscriptionTier  String           @default("free") // "free", "starter", "pro", "elite"
+  isVerified        Boolean          @default(false)
+  totalBookings     Int              @default(0)
+  averageRating     Float            @default(0.0)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  portfolioItems    PortfolioItem[]
+  providerBookings  Booking[]        @relation("ProviderBookings")
+  providerReviews   Review[]         @relation("ProviderReviews")
+
+  @@map("provider")
+}
+
+model PortfolioItem {
+  id          Int      @id @default(autoincrement())
+  provider    Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  providerId  Int
+  imageUrl    String
+  description String?
+  title       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("portfolio_item")
+}
+
+model Booking {
+  id              Int      @id @default(autoincrement())
+  provider        Provider @relation("ProviderBookings", fields: [providerId], references: [id], onDelete: Cascade)
+  providerId      Int
+  client          Profile  @relation("ClientBookings", fields: [clientId], references: [id], onDelete: Cascade)
+  clientId        Int
+  serviceType     String
+  bookingDate     DateTime
+  bookingTime     String
+  status          String   @default("pending") // "pending", "confirmed", "completed", "cancelled"
+  isTrial         Boolean  @default(false)
+  price           Float
+  notes           String?
+  location        String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  review          Review?
+
+  @@map("booking")
+}
+
+model Review {
+  id         Int      @id @default(autoincrement())
+  booking    Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  bookingId  Int      @unique
+  provider   Provider @relation("ProviderReviews", fields: [providerId], references: [id], onDelete: Cascade)
+  providerId Int
+  client     Profile  @relation("ClientReviews", fields: [clientId], references: [id], onDelete: Cascade)
+  clientId   Int
+  rating     Int // 1-5 stars
+  comment    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("review")
+}
