@@ -4,6 +4,8 @@ import type { AppType } from "../index";
 import { db } from "../db";
 import {
   addPortfolioItemRequestSchema,
+  SUBSCRIPTION_TIERS,
+  type SubscriptionTier,
 } from "../../../shared/contracts";
 
 const portfolioRouter = new Hono<AppType>();
@@ -21,11 +23,30 @@ portfolioRouter.post("/add", zValidator("json", addPortfolioItemRequestSchema), 
     // Get provider
     const profile = await db.profile.findUnique({
       where: { userId: user.id },
-      include: { provider: true },
+      include: {
+        provider: {
+          include: {
+            portfolioItems: true,
+          },
+        },
+      },
     });
 
     if (!profile?.provider) {
       return c.json({ error: "Provider profile not found" }, 404);
+    }
+
+    // Check subscription limits
+    const tier = profile.provider.subscriptionTier as SubscriptionTier;
+    const tierInfo = SUBSCRIPTION_TIERS[tier];
+    const currentCount = profile.provider.portfolioItems.length;
+
+    if (tierInfo.portfolioLimit !== -1 && currentCount >= tierInfo.portfolioLimit) {
+      return c.json({
+        error: `Portfolio limit reached for ${tierInfo.name} tier. Upgrade your subscription to add more items.`,
+        limit: tierInfo.portfolioLimit,
+        current: currentCount,
+      }, 403);
     }
 
     // Create portfolio item

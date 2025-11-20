@@ -19,6 +19,13 @@ Nexfolio is a beautiful, full-stack mobile application built with Expo and React
 - **Portfolio Management**: Providers can showcase their work with image galleries
 - **Review System**: Rate and review completed services
 - **Real-time Updates**: Track booking status (pending, confirmed, completed, cancelled)
+- **Subscription Tiers**: Multi-tier subscription system for providers
+  - **Free**: Basic profile, up to 5 portfolio items
+  - **Starter** ($9.99/mo): Up to 15 portfolio items, priority listing, advanced analytics
+  - **Pro** ($24.99/mo): Unlimited portfolio, featured badge, premium analytics
+  - **Elite** ($49.99/mo): All Pro features + verified badge, homepage featuring, dedicated support
+- **Tier Badges**: Visual badges displayed on provider profiles showing subscription level
+- **Portfolio Limits**: Automatic enforcement of portfolio item limits based on subscription tier
 
 ### Design
 - **Brand Colors**:
@@ -65,6 +72,7 @@ Nexfolio is a beautiful, full-stack mobile application built with Expo and React
 │   │   ├── ProviderDashboardScreen.tsx
 │   │   ├── ProviderPortfolioScreen.tsx
 │   │   ├── ProviderBookingsScreen.tsx
+│   │   ├── SubscriptionScreen.tsx
 │   │   # Shared Detail Screens
 │   │   ├── ProviderDetailScreen.tsx
 │   │   ├── BookingDetailScreen.tsx
@@ -95,6 +103,7 @@ Nexfolio is a beautiful, full-stack mobile application built with Expo and React
 │   │       ├── portfolio.ts
 │   │       ├── booking.ts
 │   │       ├── review.ts
+│   │       ├── subscription.ts
 │   │       └── upload.ts
 │   └── prisma/
 │       ├── schema.prisma # Database schema
@@ -109,7 +118,8 @@ Nexfolio is a beautiful, full-stack mobile application built with Expo and React
 ### Models
 - **User**: Authentication and basic user info
 - **Profile**: Extended profile information (role: provider/client)
-- **Provider**: Provider-specific data (services, pricing, ratings)
+- **Provider**: Provider-specific data (services, pricing, ratings, subscription tier)
+- **SubscriptionHistory**: Tracks subscription upgrades, downgrades, and cancellations
 - **PortfolioItem**: Provider's work showcase
 - **Booking**: Service bookings (trial and full)
 - **Review**: Client reviews for providers
@@ -142,6 +152,12 @@ Nexfolio is a beautiful, full-stack mobile application built with Expo and React
 ### Review
 - `POST /api/review/create` - Create a review
 
+### Subscription
+- `GET /api/subscription/current` - Get current subscription details
+- `POST /api/subscription/upgrade` - Upgrade or change subscription tier
+- `POST /api/subscription/cancel` - Cancel subscription (downgrade to free)
+- `GET /api/subscription/history` - Get subscription change history
+
 ### Upload
 - `POST /api/upload/image` - Upload an image
 
@@ -162,16 +178,16 @@ Backend environment variables are configured in `/home/user/workspace/backend/.e
 ## Next Steps
 
 ### Features to Add
-1. **Provider Dashboard**: Analytics and earnings tracking
-2. **Search & Filters**: Advanced provider search
-3. **Real-time Chat**: Provider-client messaging
-4. **Payment Integration**: Stripe for trial and full bookings
-5. **Push Notifications**: Booking reminders and updates
-6. **Provider Verification**: Badge system for verified professionals
-7. **Subscription Tiers**: Free, Starter, Pro, Elite plans
-8. **Calendar Integration**: Sync with device calendar
-9. **Video Calls**: Virtual consultations
-10. **Social Sharing**: Share provider profiles
+1. **Search & Filters**: Advanced provider search with filters
+2. **Real-time Chat**: Provider-client messaging system
+3. **Payment Integration**: Stripe for processing subscription payments
+4. **Push Notifications**: Booking reminders and subscription updates
+5. **Calendar Integration**: Sync with device calendar
+6. **Video Calls**: Virtual consultations
+7. **Social Sharing**: Share provider profiles
+8. **Automated Billing**: Recurring subscription payments
+9. **Usage Analytics**: Track portfolio views and booking conversions
+10. **Referral Program**: Reward users for inviting others
 
 ### Improvements
 - Add loading states and skeletons
@@ -210,6 +226,12 @@ bun run format
 - The backend API is fully typed and validated with Zod
 - Authentication is handled by Better Auth with Expo support
 - Separate navigation type systems for ClientTabParamList and ProviderTabParamList ensure type safety
+- **Subscription System**:
+  - Portfolio limits are enforced on the backend when adding items
+  - Tier badges are displayed on provider cards in discovery and detail views
+  - Verified badges (green checkmark) shown for Elite tier providers
+  - Subscription management accessible from Profile tab for providers
+  - Subscription history tracked for analytics and billing
 
 ---
 

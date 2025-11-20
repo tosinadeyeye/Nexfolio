@@ -21,6 +21,7 @@ import ProviderBookingsScreen from "@/screens/ProviderBookingsScreen";
 // Detail screens
 import ProviderDetailScreen from "@/screens/ProviderDetailScreen";
 import BookingDetailScreen from "@/screens/BookingDetailScreen";
+import SubscriptionScreen from "@/screens/SubscriptionScreen";
 
 /**
  * RootStackNavigator
@@ -67,6 +68,15 @@ const RootNavigator = () => {
         options={{
           headerShown: true,
           title: "Booking Details",
+          headerBackTitle: "Back",
+        }}
+      />
+      <RootStack.Screen
+        name="Subscription"
+        component={SubscriptionScreen}
+        options={{
+          headerShown: true,
+          title: "Subscription",
           headerBackTitle: "Back",
         }}
       />

@@ -16,6 +16,7 @@ export type RootStackParamList = {
   LoginModalScreen: { role?: "provider" | "client" } | undefined;
   ProviderDetail: { providerId: number };
   BookingDetail: { bookingId: number };
+  Subscription: undefined;
 };
 
 // Client tabs

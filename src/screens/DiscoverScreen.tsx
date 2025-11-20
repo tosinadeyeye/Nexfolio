@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { View, Text, ScrollView, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { Search, Star, MapPin, Briefcase } from "lucide-react-native";
+import { Search, Star, MapPin, Briefcase, Crown, Zap, BadgeCheck } from "lucide-react-native";
 import type { BottomTabScreenProps } from "@/navigation/types";
+import type { SubscriptionTier } from "../../shared/contracts";
 
 type Props = BottomTabScreenProps<"DiscoverTab">;
 
@@ -30,6 +31,8 @@ const MOCK_PROVIDERS = [
     location: "New York, NY",
     trialPrice: 45,
     image: "👩‍🎨",
+    subscriptionTier: "elite" as SubscriptionTier,
+    isVerified: true,
   },
   {
     id: 2,
@@ -41,6 +44,8 @@ const MOCK_PROVIDERS = [
     location: "Brooklyn, NY",
     trialPrice: 60,
     image: "⚡",
+    subscriptionTier: "pro" as SubscriptionTier,
+    isVerified: false,
   },
   {
     id: 3,
@@ -52,11 +57,24 @@ const MOCK_PROVIDERS = [
     location: "Manhattan, NY",
     trialPrice: 50,
     image: "💇‍♀️",
+    subscriptionTier: "starter" as SubscriptionTier,
+    isVerified: false,
   },
 ];
 
 const DiscoverScreen = ({ navigation }: Props) => {
   const [selectedCategory, setSelectedCategory] = useState("All");
+
+  const getTierBadge = (tier: SubscriptionTier, isVerified: boolean) => {
+    if (tier === "elite") {
+      return { icon: Crown, color: "#FFD700", bgColor: "#FFF9E6", label: "ELITE" };
+    } else if (tier === "pro") {
+      return { icon: Crown, color: "#7546EA", bgColor: "#F3EFFF", label: "PRO" };
+    } else if (tier === "starter") {
+      return { icon: Zap, color: "#FF67FF", bgColor: "#FFF0FF", label: "STARTER" };
+    }
+    return null;
+  };
 
   return (
     <View className="flex-1 bg-[#F1F1F1]">
@@ -131,7 +149,12 @@ const DiscoverScreen = ({ navigation }: Props) => {
                 {/* Info */}
                 <View className="flex-1">
                   <View className="flex-row items-center justify-between mb-1">
-                    <Text className="text-lg font-bold text-gray-900">{provider.name}</Text>
+                    <View className="flex-row items-center flex-1">
+                      <Text className="text-lg font-bold text-gray-900 mr-2">{provider.name}</Text>
+                      {provider.isVerified && (
+                        <BadgeCheck size={18} color="#10B981" fill="#10B981" />
+                      )}
+                    </View>
                     <View className="flex-row items-center bg-[#7546EA]/10 px-2 py-1 rounded-full">
                       <Star size={14} color="#7546EA" fill="#7546EA" />
                       <Text className="text-[#7546EA] font-bold ml-1 text-sm">
@@ -140,7 +163,30 @@ const DiscoverScreen = ({ navigation }: Props) => {
                     </View>
                   </View>
 
-                  <Text className="text-sm text-gray-500 mb-2">{provider.handle}</Text>
+                  <View className="flex-row items-center mb-2">
+                    <Text className="text-sm text-gray-500 mr-2">{provider.handle}</Text>
+                    {getTierBadge(provider.subscriptionTier, provider.isVerified) && (
+                      <View
+                        className="flex-row items-center px-2 py-0.5 rounded-full"
+                        style={{
+                          backgroundColor: getTierBadge(provider.subscriptionTier, provider.isVerified)!.bgColor,
+                        }}
+                      >
+                        {React.createElement(getTierBadge(provider.subscriptionTier, provider.isVerified)!.icon, {
+                          size: 10,
+                          color: getTierBadge(provider.subscriptionTier, provider.isVerified)!.color,
+                        })}
+                        <Text
+                          className="text-xs font-bold ml-1"
+                          style={{
+                            color: getTierBadge(provider.subscriptionTier, provider.isVerified)!.color,
+                          }}
+                        >
+                          {getTierBadge(provider.subscriptionTier, provider.isVerified)!.label}
+                        </Text>
+                      </View>
+                    )}
+                  </View>
 
                   <View className="flex-row items-center mb-2">
                     <Briefcase size={14} color="#666" />

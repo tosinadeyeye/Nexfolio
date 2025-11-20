@@ -12,6 +12,7 @@ import {
   Star,
   Calendar,
   Award,
+  Crown,
 } from "lucide-react-native";
 import type { BottomTabScreenProps } from "@/navigation/types";
 import { useSession } from "@/lib/useSession";
@@ -22,6 +23,8 @@ type Props = BottomTabScreenProps<"ProfileTab">;
 const ProfileScreen = ({ navigation }: Props) => {
   const { data: session } = useSession();
   const reset = useAppStore((s) => s.reset);
+  const userProfile = useAppStore((s) => s.profile);
+  const isProvider = userProfile?.role === "provider";
 
   const handleLogout = () => {
     Alert.alert(
@@ -45,12 +48,12 @@ const ProfileScreen = ({ navigation }: Props) => {
   const profile = {
     name: session?.user?.name || "Guest User",
     email: session?.user?.email || "user@example.com",
-    handle: "@johndoe",
-    location: "New York, NY",
-    phone: "+1 (555) 123-4567",
-    totalBookings: 12,
+    handle: userProfile?.handle || "@johndoe",
+    location: userProfile?.location || "New York, NY",
+    phone: userProfile?.phoneNumber || "+1 (555) 123-4567",
+    totalBookings: userProfile?.provider?.totalBookings || 12,
     completedBookings: 10,
-    rating: 4.9,
+    rating: userProfile?.provider?.averageRating || 4.9,
   };
 
   return (
@@ -169,6 +172,16 @@ const ProfileScreen = ({ navigation }: Props) => {
             elevation: 3,
           }}
         >
+          {isProvider && (
+            <Pressable
+              onPress={() => navigation.navigate("Subscription" as any)}
+              className="flex-row items-center py-4 border-b border-gray-100"
+            >
+              <Crown size={22} color="#7546EA" />
+              <Text className="text-gray-900 font-medium ml-3 flex-1">Subscription</Text>
+            </Pressable>
+          )}
+
           <Pressable className="flex-row items-center py-4 border-b border-gray-100">
             <Settings size={22} color="#666" />
             <Text className="text-gray-900 font-medium ml-3 flex-1">Settings</Text>

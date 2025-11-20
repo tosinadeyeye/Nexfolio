@@ -12,6 +12,7 @@ import providerRouter from "./routes/provider";
 import portfolioRouter from "./routes/portfolio";
 import bookingRouter from "./routes/booking";
 import reviewRouter from "./routes/review";
+import { subscriptionRouter } from "./routes/subscription";
 import { type AppType } from "./types";
 
 export type { AppType };
@@ -63,6 +64,9 @@ app.route("/api/booking", bookingRouter);
 console.log("⭐ Mounting review routes at /api/review");
 app.route("/api/review", reviewRouter);
 
+console.log("💳 Mounting subscription routes at /api/subscription");
+app.route("/api/subscription", subscriptionRouter);
+
 // Health check endpoint
 // Used by load balancers and monitoring tools to verify service is running
 app.get("/health", (c) => {
@@ -86,6 +90,7 @@ serve({ fetch: app.fetch, port: Number(env.PORT) }, () => {
   console.log("  📸 Portfolio:  /api/portfolio/*");
   console.log("  📅 Booking:    /api/booking/*");
   console.log("  ⭐ Review:     /api/review/*");
+  console.log("  💳 Subscription: /api/subscription/*");
   console.log("  💚 Health:     GET /health");
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
 });
