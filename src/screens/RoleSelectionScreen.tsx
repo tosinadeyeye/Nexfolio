@@ -3,15 +3,19 @@ import { View, Text, Pressable, ScrollView } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Briefcase, User, Check } from "lucide-react-native";
 import type { RootStackScreenProps } from "@/navigation/types";
+import { useAppStore } from "@/state/appStore";
 
 type Props = RootStackScreenProps<"RoleSelection">;
 
 const RoleSelectionScreen = ({ navigation }: Props) => {
   const [selectedRole, setSelectedRole] = useState<"provider" | "client" | null>(null);
+  const setHasCompletedOnboarding = useAppStore((s) => s.setHasCompletedOnboarding);
 
   const handleContinue = () => {
     if (selectedRole) {
-      navigation.navigate("LoginModalScreen", { role: selectedRole });
+      setHasCompletedOnboarding(true);
+      // Skip login for now and go straight to main app
+      navigation.replace("Tabs");
     }
   };
 

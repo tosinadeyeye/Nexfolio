@@ -112,6 +112,7 @@ const DiscoverScreen = ({ navigation }: Props) => {
           {MOCK_PROVIDERS.map((provider) => (
             <Pressable
               key={provider.id}
+              onPress={() => navigation.navigate("ProviderDetail", { providerId: provider.id })}
               className="bg-white rounded-3xl p-4 mb-4"
               style={{
                 shadowColor: "#000",

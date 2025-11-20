@@ -14,6 +14,8 @@ export type RootStackParamList = {
   RoleSelection: undefined;
   Tabs: NavigatorScreenParams<BottomTabParamList> | undefined;
   LoginModalScreen: { role?: "provider" | "client" } | undefined;
+  ProviderDetail: { providerId: number };
+  BookingDetail: { bookingId: number };
 };
 
 export type BottomTabParamList = {

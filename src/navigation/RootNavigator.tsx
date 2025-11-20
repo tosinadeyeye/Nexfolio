@@ -12,35 +12,65 @@ import LoginModalScreen from "@/screens/LoginModalScreen";
 import DiscoverScreen from "@/screens/DiscoverScreen";
 import BookingsScreen from "@/screens/BookingsScreen";
 import ProfileScreen from "@/screens/ProfileScreen";
+import ProviderDetailScreen from "@/screens/ProviderDetailScreen";
+import BookingDetailScreen from "@/screens/BookingDetailScreen";
 
 /**
  * RootStackNavigator
- * The root navigator for the app, which contains the bottom tab navigator and all the screens inside it
- * Most of the new screens will go here
+ * Main navigation structure for Nexfolio
  */
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 const RootNavigator = () => {
   return (
-    <RootStack.Navigator initialRouteName="Splash">
+    <RootStack.Navigator
+      initialRouteName="Splash"
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      {/* Onboarding Flow */}
       <RootStack.Screen
         name="Splash"
         component={SplashScreen}
-        options={{ headerShown: false }}
       />
       <RootStack.Screen
         name="RoleSelection"
         component={RoleSelectionScreen}
-        options={{ headerShown: false }}
       />
+
+      {/* Main App */}
       <RootStack.Screen
         name="Tabs"
         component={BottomTabNavigator}
-        options={{ headerShown: false }}
       />
+
+      {/* Modals & Detail Screens */}
       <RootStack.Screen
         name="LoginModalScreen"
         component={LoginModalScreen}
-        options={{ presentation: "modal", title: "Login" }}
+        options={{
+          presentation: "modal",
+          headerShown: true,
+          title: "Sign In"
+        }}
+      />
+      <RootStack.Screen
+        name="ProviderDetail"
+        component={ProviderDetailScreen}
+        options={{
+          headerShown: true,
+          title: "Provider Details",
+          headerBackTitle: "Back"
+        }}
+      />
+      <RootStack.Screen
+        name="BookingDetail"
+        component={BookingDetailScreen}
+        options={{
+          headerShown: true,
+          title: "Booking Details",
+          headerBackTitle: "Back"
+        }}
       />
     </RootStack.Navigator>
   );
@@ -48,8 +78,7 @@ const RootNavigator = () => {
 
 /**
  * BottomTabNavigator
- * The bottom tab navigator for the app, which contains ONLY the bottom tab screens
- * If you want to add a new screen, you should add it here
+ * Main tabs for the client experience
  */
 const BottomTab = createBottomTabNavigator<BottomTabParamList>();
 const BottomTabNavigator = () => {
@@ -61,17 +90,24 @@ const BottomTabNavigator = () => {
           position: "absolute",
           borderTopWidth: 0,
           elevation: 0,
+          height: 88,
+          paddingBottom: 32,
+          paddingTop: 8,
         },
         tabBarBackground: () => (
-          <BlurView tint="light" intensity={80} style={StyleSheet.absoluteFill} />
+          <BlurView tint="light" intensity={95} style={StyleSheet.absoluteFill} />
         ),
         tabBarActiveTintColor: "#7546EA",
         tabBarInactiveTintColor: "#9CA3AF",
         headerShown: false,
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: "600",
+        },
       }}
       screenListeners={() => ({
-        transitionStart: () => {
-          Haptics.selectionAsync();
+        tabPress: () => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         },
       })}
     >
@@ -80,7 +116,7 @@ const BottomTabNavigator = () => {
         component={DiscoverScreen}
         options={{
           title: "Discover",
-          tabBarIcon: ({ color, size }) => <Search size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => <Search size={size} color={color} strokeWidth={2.5} />,
         }}
       />
       <BottomTab.Screen
@@ -88,7 +124,7 @@ const BottomTabNavigator = () => {
         component={BookingsScreen}
         options={{
           title: "Bookings",
-          tabBarIcon: ({ color, size }) => <Calendar size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => <Calendar size={size} color={color} strokeWidth={2.5} />,
         }}
       />
       <BottomTab.Screen
@@ -96,7 +132,7 @@ const BottomTabNavigator = () => {
         component={ProfileScreen}
         options={{
           title: "Profile",
-          tabBarIcon: ({ color, size }) => <User size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => <User size={size} color={color} strokeWidth={2.5} />,
         }}
       />
     </BottomTab.Navigator>

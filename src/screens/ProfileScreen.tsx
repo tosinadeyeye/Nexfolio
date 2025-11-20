@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, ScrollView, Pressable } from "react-native";
+import { View, Text, ScrollView, Pressable, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import {
@@ -15,11 +15,31 @@ import {
 } from "lucide-react-native";
 import type { BottomTabScreenProps } from "@/navigation/types";
 import { useSession } from "@/lib/useSession";
+import { useAppStore } from "@/state/appStore";
 
 type Props = BottomTabScreenProps<"ProfileTab">;
 
 const ProfileScreen = ({ navigation }: Props) => {
   const { data: session } = useSession();
+  const reset = useAppStore((s) => s.reset);
+
+  const handleLogout = () => {
+    Alert.alert(
+      "Log Out",
+      "Are you sure you want to log out?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Log Out",
+          style: "destructive",
+          onPress: () => {
+            reset();
+            navigation.navigate("Splash" as any);
+          },
+        },
+      ]
+    );
+  };
 
   // Mock profile data
   const profile = {
@@ -154,7 +174,7 @@ const ProfileScreen = ({ navigation }: Props) => {
             <Text className="text-gray-900 font-medium ml-3 flex-1">Settings</Text>
           </Pressable>
 
-          <Pressable className="flex-row items-center py-4">
+          <Pressable onPress={handleLogout} className="flex-row items-center py-4">
             <LogOut size={22} color="#EF4444" />
             <Text className="text-red-500 font-medium ml-3 flex-1">Log Out</Text>
           </Pressable>

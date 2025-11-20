@@ -1,14 +1,27 @@
 import React from "react";
-import { View, Text, Pressable, Image } from "react-native";
+import { View, Text } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import type { RootStackScreenProps } from "@/navigation/types";
+import { useAppStore } from "@/state/appStore";
+import { Image } from "expo-image";
 
 type Props = RootStackScreenProps<"Splash">;
 
 const SplashScreen = ({ navigation }: Props) => {
-  const handleGetStarted = () => {
-    navigation.replace("RoleSelection");
-  };
+  const hasCompletedOnboarding = useAppStore((s) => s.hasCompletedOnboarding);
+
+  React.useEffect(() => {
+    // Auto-navigate after 2 seconds
+    const timer = setTimeout(() => {
+      if (hasCompletedOnboarding) {
+        navigation.replace("Tabs");
+      } else {
+        navigation.replace("RoleSelection");
+      }
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [hasCompletedOnboarding, navigation]);
 
   return (
     <View style={{ flex: 1 }}>
@@ -19,45 +32,39 @@ const SplashScreen = ({ navigation }: Props) => {
         style={{ flex: 1 }}
       >
         <View className="flex-1 justify-center items-center px-8">
-          {/* Logo Area */}
+          {/* Logo */}
           <View className="items-center mb-12">
-            <View className="bg-white rounded-3xl p-6 mb-6" style={{
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 8 },
-              shadowOpacity: 0.3,
-              shadowRadius: 16,
-              elevation: 10,
-            }}>
+            <View
+              className="bg-white rounded-3xl p-6 mb-8"
+              style={{
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 12 },
+                shadowOpacity: 0.3,
+                shadowRadius: 20,
+                elevation: 15,
+              }}
+            >
               <Image
                 source={require("../../assets/image-1763608540.jpeg")}
-                style={{ width: 120, height: 120, borderRadius: 20 }}
-                resizeMode="cover"
+                style={{ width: 128, height: 128, borderRadius: 24 }}
+                contentFit="cover"
               />
             </View>
-            <Text className="text-6xl font-bold text-white mb-2">Nexfolio</Text>
-            <Text className="text-xl text-white/90 text-center">
+
+            <Text className="text-6xl font-bold text-white mb-3 tracking-tight">
+              Nexfolio
+            </Text>
+            <Text className="text-xl text-white/90 text-center font-medium">
               Connect. Try. Book.
             </Text>
           </View>
 
-          {/* Description */}
-          <Text className="text-lg text-white/90 text-center mb-12 leading-7">
-            Discover talented professionals for trial-based services. From makeup artists to
-            electricians, find the perfect match for your needs.
-          </Text>
-
-          {/* CTA Button */}
-          <Pressable
-            onPress={handleGetStarted}
-            className="bg-white rounded-full px-12 py-5 shadow-lg active:opacity-80"
-          >
-            <Text className="text-[#7546EA] text-lg font-bold">Get Started</Text>
-          </Pressable>
-
-          {/* Footer */}
-          <Text className="text-white/70 text-sm mt-auto mb-8">
-            Your journey to finding professionals starts here
-          </Text>
+          {/* Tagline */}
+          <View className="absolute bottom-20">
+            <Text className="text-white/70 text-base text-center font-medium">
+              Your professional marketplace
+            </Text>
+          </View>
         </View>
       </LinearGradient>
     </View>

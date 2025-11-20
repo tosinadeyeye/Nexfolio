@@ -75,6 +75,7 @@ const BookingsScreen = ({ navigation }: Props) => {
         {MOCK_BOOKINGS.map((booking) => (
           <Pressable
             key={booking.id}
+            onPress={() => navigation.navigate("BookingDetail", { bookingId: booking.id })}
             className="bg-white rounded-3xl p-5 mb-4"
             style={{
               shadowColor: "#000",
