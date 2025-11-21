@@ -44,7 +44,7 @@ Nexfolio is a beautiful, full-stack mobile application built with Expo and React
 ## Tech Stack
 
 ### Frontend
-- **Expo SDK 53** with React Native 0.79.2
+- **Expo SDK 53.0.24** with React Native 0.79.6
 - **TypeScript** for type safety
 - **Nativewind** (TailwindCSS for React Native) for styling
 - **React Navigation 7** with native stack and bottom tabs
