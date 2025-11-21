@@ -1,17 +1,24 @@
 {
   "expo": {
-    "name": "vibecode",
-    "slug": "vibecode",
-    "scheme": "vibecode",
+    "name": "Nexfolio",
+    "slug": "nexfolio",
+    "scheme": "nexfolio",
     "version": "1.0.0",
     "orientation": "portrait",
+    "icon": "./assets/icon-1763608570256.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.nexfolio.app"
     },
     "android": {
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon-1763608570256.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.nexfolio.app"
     },
     "plugins": [
       "expo-asset",
