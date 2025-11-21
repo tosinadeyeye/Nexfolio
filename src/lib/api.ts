@@ -16,12 +16,17 @@ import { authClient } from "./authClient";
  * Backend URL Configuration
  *
  * The backend URL is dynamically set by the Vibecode environment at runtime.
- * Format: https://[UNIQUE_ID].share.sandbox.dev/
- * This allows the app to connect to different backend instances without code changes.
+ * For production builds, you need to set EXPO_PUBLIC_BACKEND_URL in your app config.
+ * Format: https://[UNIQUE_ID].share.sandbox.dev/ or your production backend URL
  */
-const BACKEND_URL = process.env.EXPO_PUBLIC_VIBECODE_BACKEND_URL;
-if (!BACKEND_URL) {
-  throw new Error("Backend URL setup has failed. Please contact support@vibecodeapp.com for help.");
+const BACKEND_URL =
+  process.env.EXPO_PUBLIC_VIBECODE_BACKEND_URL || // Vibecode development
+  process.env.EXPO_PUBLIC_BACKEND_URL || // Production environment
+  ""; // Fallback - app will work offline or without backend
+
+// Log the backend URL for debugging (only in development)
+if (__DEV__) {
+  console.log("[api.ts] Backend URL:", BACKEND_URL || "No backend URL configured");
 }
 
 type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
@@ -51,6 +56,14 @@ type FetchOptions = {
  */
 const fetchFn = async <T>(path: string, options: FetchOptions): Promise<T> => {
   const { method, body } = options;
+
+  // Check if backend URL is configured
+  if (!BACKEND_URL) {
+    throw new Error(
+      "Backend is not configured. Please add EXPO_PUBLIC_BACKEND_URL to your environment variables."
+    );
+  }
+
   // Step 1: Authentication - Retrieve session cookies from the auth client
   // These cookies are used to identify the user and maintain their session
   const headers = new Map<string, string>();

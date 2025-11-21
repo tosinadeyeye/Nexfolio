@@ -180,6 +180,17 @@ Backend environment variables are configured in `/home/user/workspace/backend/.e
 - `BETTER_AUTH_SECRET` - Authentication secret
 - `BACKEND_URL` - Backend server URL (auto-configured)
 
+**For Production Builds:**
+You need to deploy your backend and set the backend URL:
+1. Deploy your backend to a hosting service (Railway, Render, Fly.io, etc.)
+2. Set `EXPO_PUBLIC_BACKEND_URL` in your EAS build secrets or app.json:
+   ```json
+   "extra": {
+     "EXPO_PUBLIC_BACKEND_URL": "https://your-production-backend.com"
+   }
+   ```
+3. The app will automatically use this URL in production builds
+
 ## Next Steps
 
 ### Features to Add

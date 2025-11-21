@@ -8,6 +8,11 @@
     "icon": "./assets/icon-1763608570256.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "extra": {
+      "eas": {
+        "projectId": "your-eas-project-id"
+      }
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.nexfolio.app"
