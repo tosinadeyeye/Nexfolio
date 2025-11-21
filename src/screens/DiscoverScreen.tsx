@@ -43,6 +43,8 @@ const DiscoverScreen = ({ navigation }: Props) => {
       const response = await api.get<GetProvidersResponse>(`/api/provider?${params.toString()}`);
       return response;
     },
+    retry: false, // Don't retry on failure
+    enabled: true, // Always try to fetch
   });
 
   const getTierBadge = (tier: SubscriptionTier, isVerified: boolean) => {
@@ -122,8 +124,11 @@ const DiscoverScreen = ({ navigation }: Props) => {
               <Text className="text-gray-500 mt-4">Loading providers...</Text>
             </View>
           ) : error ? (
-            <View className="py-8 items-center">
-              <Text className="text-red-500">Failed to load providers</Text>
+            <View className="py-8 items-center px-6">
+              <Text className="text-lg font-semibold text-gray-900 mb-2">Backend Not Connected</Text>
+              <Text className="text-gray-500 text-center">
+                The app is running in demo mode. To see real data, connect to a backend server.
+              </Text>
             </View>
           ) : !providers || providers.length === 0 ? (
             <View className="py-8 items-center">
