@@ -11,7 +11,8 @@
     "extra": {
       "eas": {
         "projectId": "your-eas-project-id"
-      }
+      },
+      "EXPO_PUBLIC_BACKEND_URL": "https://nexfolio.onrender.com"
     },
     "ios": {
       "supportsTablet": true,
